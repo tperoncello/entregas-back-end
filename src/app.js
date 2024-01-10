@@ -7,8 +7,59 @@ const PORT = process.env.PORT || 8080;
 app.use(express.json());
 
 // Rutas
-app.get('/', (req, res) => {
-  res.send('¡Bienvenido a la pagina que hice con todo el amor del mundo! Visita la lista de productos: <a href="/products">/products</a>');
+app.get('/', async (req, res) => {
+  try {
+    const productosData = await fs.readFile('./src/models/productos.json', 'utf-8');
+    const productos = JSON.parse(productosData);
+
+    const cartData = await fs.readFile('./src/models/carrito.json', 'utf-8');
+    const cart = JSON.parse(cartData);
+
+    const htmlResponse = `
+    <html>
+      <head>
+        <style>
+          body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            margin: 50px;
+          }
+  
+          h1 {
+            color: #333;
+          }
+  
+          p {
+            margin: 10px 0;
+          }
+  
+          a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+          }
+  
+          a:hover {
+            text-decoration: underline;
+          }
+        </style>
+        <!--estilos inesesarios pero que quedan de 10 😶‍🌫️-->
+      </head>
+      <body>
+        <h1>¡¡¡Hola bienvenido a mi primer API!!!</h1>
+        <p>Visita la lista de productos: <a href="/products">Productos</a></p>
+        <p>Visita el contenido en el carrito: <a href="/cart">Carrito</a></p>
+      </body>
+    </html>
+  `;
+  
+
+    res.send(htmlResponse);
+  } catch (error) {
+    console.error('Error al leer productos o carrito', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
 });
 
 // Ruta para mostrar productos
